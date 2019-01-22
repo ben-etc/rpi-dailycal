@@ -16,7 +16,7 @@ def convertBitmap(RGBImage, screencolor = "red"):
     
     if screencolor == "red" or screencolor == "yellow":
         # Go through the original image pixel by pixel and separate out red and an average of blue/green channels
-
+        
         # Create a color and black bitmap if the screencolor is not grayscale
         for y in range(imgheight):
             for x in range(imgwidth):
@@ -35,16 +35,17 @@ def convertBitmap(RGBImage, screencolor = "red"):
                 # Math for red screens
                 if screencolor == "red":
                     avg = int((g + b) / 2) # Average the blue and green channels to output it to the black channel
-                    colorvalue = r - avg 
+                    colorvalue = r - max(g, b)
                     colorscale.putpixel((x,y), (255 - colorvalue))
                     grayscale.putpixel((x,y), avg)
 
                 # Math for yellow screens
                 elif screencolor == "yellow":
-                    yellowavg = int((r + g) / 2) # Average the red and green channels to try to get a yellow value
-                    yellowavg = max(0, yellowavg - b)
+                    yellowavg = int(((r-b) + (g-b)) / 2) # Average the red and green channels to try to get a yellow value
+                    yellowavg = yellowavg - max(r - g, g - r)
+                    grayavg = int((r + g + b) / 3)
                     colorscale.putpixel((x,y), 255 - yellowavg)
-                    grayscale.putpixel((x,y), b)
+                    grayscale.putpixel((x,y), grayavg)
 
         # Convert the two grayscale images to single color bitmaps
         colorbitmap = colorscale.convert("1")
@@ -72,7 +73,7 @@ def convertBitmap(RGBImage, screencolor = "red"):
     return blackbitmap, colorbitmap
 
 # This function is largely used for testing. It will save a file a combined output to use as a preview
-def mergeBitmaps(colorbitmap, blackbitmap, screencolor = "red"):
+def mergeBitmaps(blackbitmap, colorbitmap, screencolor = "red"):
     # Define colors that will be used
     color = ImageColor.getcolor(screencolor, "RGB")
     black = ImageColor.getcolor("black", "RGB")
