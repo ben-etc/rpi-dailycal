@@ -28,3 +28,5 @@ Consider supporting my work by [buying me a coffee on Ko-Fi](https://ko-fi.com/b
 This project is licensed under the GPLv3 License - see the [LICENSE.md](LICENSE.md) file for details
 
 The e-paper libraries included with this software are copyright Waveshare and distributed with permission as indicated in the associate files.
+
+The font League Spartan is from the [League of Movable Type](https://www.theleagueofmoveabletype.com) and can be found on GitHub at [https://github.com/theleagueof/league-spartan](github.com/theleagueof/league-spartan). It is distributed under the OFL license included in the fonts/ directory.
