@@ -1,31 +1,55 @@
-##
- #  @filename   :   epd7in5.py
- #  @brief      :   Implements for Dual-color e-paper library
- #  @author     :   Yehui from Waveshare
- #
- #  Copyright (C) Waveshare     July 10 2017
- #
- # Permission is hereby granted, free of charge, to any person obtaining a copy
- # of this software and associated documnetation files (the "Software"), to deal
- # in the Software without restriction, including without limitation the rights
- # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- # copies of the Software, and to permit persons to  whom the Software is
- # furished to do so, subject to the following conditions:
- #
- # The above copyright notice and this permission notice shall be included in
- # all copies or substantial portions of the Software.
- #
- # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- # FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- # LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- # THE SOFTWARE.
- #
+# //*****************************************************************************
+# * | File        :	  epd7in5b.py
+# * | Author      :   Waveshare team
+# * | Function    :   Electronic paper driver
+# * | Info        :
+# *----------------
+# * |	This version:   V3.0
+# * | Date        :   2018-11-12
+# * | Info        :   python2 demo
+# * 1.Remove:
+#   digital_write(self, pin, value)
+#   digital_read(self, pin)
+#   delay_ms(self, delaytime)
+#   set_lut(self, lut)
+#   self.lut = self.lut_full_update
+# * 2.Change:
+#   display_frame -> TurnOnDisplay
+#   set_memory_area -> SetWindow
+#   set_memory_pointer -> SetCursor
+#   get_frame_buffer -> getbuffer
+#   set_frame_memory -> display
+# * 3.How to use
+#   epd = epd7in5b.EPD()
+#   epd.init(epd.lut_full_update)
+#   image = Image.new('1', (epd7in5b.EPD_WIDTH, epd7in5b.EPD_HEIGHT), 255)
+#   ...
+#   drawing ......
+#   ...
+#   epd.display(getbuffer(image))
+# ******************************************************************************//
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documnetation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and//or sell
+# copies of the Software, and to permit persons to  whom the Software is
+# furished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS OR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
 
-import epdif
-import Image
+
+import epdconfig
+from PIL import Image
 import RPi.GPIO as GPIO
 
 # Display resolution
@@ -73,37 +97,41 @@ VCM_DC_SETTING                              = 0x82
 
 class EPD:
     def __init__(self):
-        self.reset_pin = epdif.RST_PIN
-        self.dc_pin = epdif.DC_PIN
-        self.busy_pin = epdif.BUSY_PIN
+        self.reset_pin = epdconfig.RST_PIN
+        self.dc_pin = epdconfig.DC_PIN
+        self.busy_pin = epdconfig.BUSY_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
 
-    def digital_write(self, pin, value):
-        epdif.epd_digital_write(pin, value)
-
-    def digital_read(self, pin):
-        return epdif.epd_digital_read(pin)
-
-    def delay_ms(self, delaytime):
-        epdif.epd_delay_ms(delaytime)
+    # Hardware reset
+    def reset(self):
+        # epdconfig.digital_write(self.reset_pin, GPIO.HIGH)
+        # epdconfig.delay_ms(200) 
+        epdconfig.digital_write(self.reset_pin, GPIO.LOW)         # module reset
+        epdconfig.delay_ms(200)
+        epdconfig.digital_write(self.reset_pin, GPIO.HIGH)
+        epdconfig.delay_ms(200)   
 
     def send_command(self, command):
-        self.digital_write(self.dc_pin, GPIO.LOW)
-        # the parameter type is list but not int
-        # so use [command] instead of command
-        epdif.spi_transfer([command])
+        epdconfig.digital_write(self.dc_pin, GPIO.LOW)
+        epdconfig.spi_writebyte([command])
 
     def send_data(self, data):
-        self.digital_write(self.dc_pin, GPIO.HIGH)
-        # the parameter type is list but not int
-        # so use [data] instead of data
-        epdif.spi_transfer([data])
-
+        epdconfig.digital_write(self.dc_pin, GPIO.HIGH)
+        epdconfig.spi_writebyte([data])
+        
+    def wait_until_idle(self):
+        print("e-Paper busy")
+        while(epdconfig.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
+            epdconfig.delay_ms(100)
+        print("e-Paper busy release")
+            
     def init(self):
-        if (epdif.epd_init() != 0):
+        if (epdconfig.module_init() != 0):
             return -1
+            
         self.reset()
+        
         self.send_command(POWER_SETTING)
         self.send_data(0x37)
         self.send_data(0x00)
@@ -134,39 +162,37 @@ class EPD:
         self.send_command(0xe5)           #FLASH MODE
         self.send_data(0x03)
 
-    def wait_until_idle(self):
-        while(self.digital_read(self.busy_pin) == 0):      # 0: busy, 1: idle
-            self.delay_ms(50)
+        return 0
 
-    def reset(self):
-        self.digital_write(self.reset_pin, GPIO.LOW)         # module reset
-        self.delay_ms(200)
-        self.digital_write(self.reset_pin, GPIO.HIGH)
-        self.delay_ms(200)    
-
-    def get_frame_buffer(self, image):
-        buf = [0xFF] * (self.width * self.height / 8)
-        # Set buffer to value of Python Imaging Library image.
-        # Image must be in mode L.
-        image_grayscale = image.convert('1')
-        imwidth, imheight = image_grayscale.size
-        if imwidth != self.width or imheight != self.height:
-            raise ValueError('Image must be same dimensions as display \
-                ({0}x{1}).' .format(self.width, self.height))
-
-        pixels = image_grayscale.load()
-        for y in range(self.height):
-            for x in range(self.width):
-                # Set the bits for the column of pixels at the current position.
-                if pixels[x, y] == 0:
-                    buf[(x + y * self.width) / 8] &= ~(0x80 >> (x % 8))
+    def getbuffer(self, image):
+        # print "bufsiz = ",(self.width//8) * self.height
+        buf = [0xFF] * ((self.width//8) * self.height)
+        image_monocolor = image.convert('1')
+        imwidth, imheight = image_monocolor.size
+        pixels = image_monocolor.load()
+        # print "imwidth = %d, imheight = %d",imwidth,imheight
+        if(imwidth == self.width and imheight == self.height):
+            print("Horizontal")
+            for y in range(imheight):
+                for x in range(imwidth):
+                    # Set the bits for the column of pixels at the current position.
+                    if pixels[x, y] == 0:
+                        buf[(x + y * self.width) // 8] &= ~(0x80 >> (x % 8))
+        elif(imwidth == self.height and imheight == self.width):
+            print("Vertical")
+            for y in range(imheight):
+                for x in range(imwidth):
+                    newx = y
+                    newy = self.height - x - 1
+                    if pixels[x, y] == 0:
+                        buf[(newx + newy*self.width) // 8] &= ~(0x80 >> (y % 8))
         return buf
 
-    def display_frame(self, frame_buffer_black, frame_buffer_red):
+    def display(self, imageblack, imagered):
         self.send_command(DATA_START_TRANSMISSION_1)
-        for i in range(0, self.width / 8 * self.height):
-            temp1 = frame_buffer_black[i]
-            temp2 = frame_buffer_red[i]
+        for i in range(0, self.width // 8 * self.height):
+            temp1 = imageblack[i]
+            temp2 = imagered[i]
             j = 0
             while (j < 8):
                 if ((temp2 & 0x80) == 0x00):
@@ -190,15 +216,29 @@ class EPD:
                 temp2 = (temp2 << 1) & 0xFF
                 self.send_data(temp3)
                 j += 1
+        # self.send_command(POWER_ON)
+        # self.wait_until_idle()
         self.send_command(DISPLAY_REFRESH)
-        self.delay_ms(50)
+        epdconfig.delay_ms(100)
+        self.wait_until_idle()
+        
+    def Clear(self, color):
+        self.send_command(DATA_START_TRANSMISSION_1)
+        for i in range(0, self.width // 8 * self.height):
+            self.send_data(0x33)
+            self.send_data(0x33)
+            self.send_data(0x33)
+            self.send_data(0x33)
+        # self.send_command(POWER_ON)
+        # self.wait_until_idle()
+        self.send_command(DISPLAY_REFRESH)
+        epdconfig.delay_ms(100)
         self.wait_until_idle()
 
     def sleep(self):
         self.send_command(POWER_OFF)
         self.wait_until_idle()
         self.send_command(DEEP_SLEEP)
-        self.send_data(0xa5)
-
+        self.send_data(0xA5)        # check code
 ### END OF FILE ###
 
