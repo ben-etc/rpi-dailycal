@@ -60,9 +60,13 @@ By default, the script looks for a "secret pixel", which is the _first_ instance
 If this behavior is not desired, either because you are using an image with solid blue pixels or simply to avoid having to manually place this pixel on your image, the date box can be placed with any of the following `--date_location` arguments:
 
 `topleft` place the date box in the upper left corner
+
 `topright` place the date box in the upper right corner
+
 `bottomleft` place the date box in the lower left corner
+
 `bottomright` place the date box in the lower right corner
+
 `manual` uses the (x, y) coordinates provided by the `--date_coords` argument. Note that (0, 0) is the upper left of the image; increasing values for x move to the right, and increasing values for y move down.
 
 The script is also designed to never allow the date box to extend off the side of the image, so don't worry too much about figuring out the size of the date box for your manual placement.
