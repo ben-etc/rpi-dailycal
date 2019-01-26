@@ -70,7 +70,7 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
     
     elif screencolor == "grayscale":
         black_bitmap = rgb_image.convert("1")
-        color_bitmap = "" # color_bitmap needs a dummy value to return
+        color_bitmap = None
         # If the date location is "detect", we still need to parse each pixel to find the secret pixel.
         # I realize this is repeating an awful lot of code up above. This should be refacroted later.
         if date_location == "detect":
@@ -88,8 +88,8 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
     else:
         print("{0} is not a valid screencolor!".format(screencolor))
         # Return dummy values
-        black_bitmap = ""
-        color_bitmap = ""
+        black_bitmap = None
+        color_bitmap = None
     if secret_pixel == (-1, -1):
         secret_pixel = (0, 0) # Default the calendar to 0,0 if it hasn't been detected.
     print("Secret pixel: {0}".format(secret_pixel))
@@ -177,4 +177,5 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
         black_draw.text((margin, margin), day_of_week, fill=0, font=font)
         black_draw.text((indent, newline), formatted_date, fill=0, font=font)
         black_bitmap.paste(black_date, secret_pixel)
+        color_bitmap = None
     return black_bitmap, color_bitmap
