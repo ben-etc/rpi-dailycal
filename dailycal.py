@@ -4,6 +4,7 @@ from PIL import Image
 import createBitmaps as cb
 import epd7in5
 import epd7in5b
+import shuffler
 
 # Begin parsing arguments
 parser = argparse.ArgumentParser()
@@ -35,10 +36,15 @@ if args.red == True and args.yellow == True:
     exit()
 
 if args.input != "clear":
+    if args.input == "shuffle":
+        input_image = shuffler.shuffle_images()
+        print("Input image detected as {0}".format(input_image))
+    else:
+        input_image = args.input
     try:
-        img = Image.open("images/{0}".format(args.input))
+        img = Image.open("images/{0}".format(input_image))
     except:
-        print("Unable to open {0}".format(args.input))
+        print("Unable to open {0}".format(input_image))
 
 
 if args.red == True:
@@ -75,20 +81,28 @@ if screencolor == "grayscale":
         epd.init()
         epd.Clear(0xFF)
     else:
-        buffer = epd.getbuffer(blackbit)
+        blackbuffer = epd.getbuffer(blackbit)
         epd.init()
-        epd.display(buffer)
+        epd.display(blackbuffer)
     epd.sleep()
 
 else:
     # Do the things for red / yellow. They follow the same process.
     epd = epd7in5b.EPD()
     if args.input == "clear":
-        epd.init()
-        epd.Clear(0xFF)
+        try:
+            epd.init()
+            epd.Clear(0xFF)
+        except:
+            print("Error writing buffer. Putting display to sleep")
+            epd.sleep()
     else:
-        blackbuff = epd.getbuffer(blackbit)
-        colorbuff = epd.getbuffer(colorbit)
-        epd.init()
-        epd.display(blackbuff, colorbuff)
+        try:
+            blackbuff = epd.getbuffer(blackbit)
+            colorbuff = epd.getbuffer(colorbit)
+            epd.init()
+            epd.display(blackbuff, colorbuff)
+        except:
+            print("Error writing buffer. Putting display to sleep")
+            epd.sleep()
     epd.sleep()
