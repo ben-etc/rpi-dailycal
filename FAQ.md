@@ -16,6 +16,16 @@ PNG files at 640x384 are recommended. JPG files will work, but the way the Pytho
 
 Images larger than 640x384 will be scaled down, but will make the `--date-location detect` mode ineffective, as usually a single pixel will be interpolated to a slightly different color.
 
+Additionally, higher contrast images tend to produce better results. Red screens will tend to pick up some color from bright yellows in images and may not come out as expected.
+
+### How do I make it run every day with a new image?
+
+The script itself does not have this feature, but you can place the command in your crontab to run at a specific time every day. Using the `--image shuffle` argument will cause it to randomly pick a new image each day.
+
+### Can I use a different size screen?
+
+The drivers __epd7in5.py__ and __epd7in5b.py__ expect the screen to be 640x384. The script itself references the sizes provided by those drivers, so you could conceivably alter the script to load different drivers. I only have the 7.5" display so I cannot test anything other than this size.
+
 ### Can you add [feature]?
 
-Maybe, but I wouldn't count on it. I'm not a programmer by trade, so this was always intended to be a small hobby project.
+Maybe, but I wouldn't count on it. I'm not a programmer by trade, so this was always intended to be a small hobby project. There are a few other features I may add, but I'm not going to promise anything.

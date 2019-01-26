@@ -87,16 +87,23 @@ if args.input != "clear":
 if screencolor == "grayscale":
     epd = epd7in5.EPD()
     if args.input == "clear":
-        epd.init()
-        epd.Clear(0xFF)
+        try:
+            epd.init()
+            epd.Clear(0xFF)
+        except:
+            print("Error writing buffer. Putting display to sleep")
+            epd.sleep()
     else:
-        blackbit.save("buffer.bmp")
-        # Saving the black bitmap and reloading it fixes a blank date box bug
-        # I don't know what causes it, but this fixes it.
-        new_blackbit = Image.open("buffer.bmp")
-        blackbuffer = epd.getbuffer(new_blackbit)
-        epd.init()
-        epd.display(blackbuffer)
+        try:
+            blackbit.save("buffer.bmp")
+            # Saving the black bitmap and reloading it fixes a blank date box bug
+            # I don't know what causes it, but this fixes it.
+            new_blackbit = Image.open("buffer.bmp")
+            blackbuffer = epd.getbuffer(new_blackbit)
+            epd.init()
+            epd.display(blackbuffer)
+        except:
+            print("Error writing buffer. Putting display to sleep")
     epd.sleep()
 
 else:
