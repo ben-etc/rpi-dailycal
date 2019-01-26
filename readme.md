@@ -79,6 +79,8 @@ Although the image can be in .jpg format, this is discouraged, as the image conv
 
 Supplying the argument `--image clear` will cause the display to clear to white.
 
+Supplying the argument `--image shuffle` will pick the next image in the pre-shuffled list, or generate a new shuffled list if the list is empty.
+
 ## About --font
 
 The `--font` argument will look for fonts in the font/ directory. Additional fonts can be installed into this directory, and it _does not_ look for fonts elsewhere on the system. `python3 dailycal.py --image hello.png --font arial.ttf` will attempt to use __fonts/arial.ttf__. If Arial is _not_ in that directory, the script will fail even if Arial is elsewhere on the system. Just like with images, the extension must be supplied, as it can use .ttf and .otf fonts.
