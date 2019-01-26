@@ -20,16 +20,14 @@ The Waveshare display requires several libraries. Per the Waveshare manual, the 
 
 ```bash
 sudo apt-get install python3 python3-pip python-imaging libopenjp2-7-dev
-sudo pip3 install spidev
-sudo pip3 install RPi.GPIO
-sudo pip3 install Pillow
+sudo pip3 install spidev RPi.GPIO Pillow
 ```
+
+If you have not already enabled the SPI interfacing, run `sudo raspi-config` and enable it under __Interfacing Options__ -> __SPI__.
 
 Additionally, if you are not running the Raspberry Pi as the default user __Pi__, you will need to make sure your account is a member of the same groups as __Pi__. Notably there are groups which allow access to spidev and GPIO. If you just want to get started as soon as possible, it's advised that you run this software as the user __Pi__.
 
 ## Usage
-
-##### Note: this section is currently changing rapidly as the frontend script is written and new features are added.
 
 The program can be invoked with `python3 dailycal.py`. The only required argument is `--image`, which points the script to the image you would like to use.
 
