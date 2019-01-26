@@ -73,9 +73,9 @@ The script is also designed to never allow the date box to extend off the side o
 
 ## About --image
 
-The `--image` argument will automatically look for the name of that image in the images/ directory. Because the program can run with either .jpg or .png images, you will need to make sure you include the extension. `python3 dailycal.py --image hello.png` looks for the image __image/hello.png__.
+The `--image` argument will automatically look for the name of that image in the images/ directory. Because the program can run with either .jpg or .png images, you will need to make sure you include the extension. `python3 dailycal.py --image hello.png` looks for the image __images/hello.png__.
 
-Although the image can be in .jpg format, this is discouraged, as the image converter does some unexpected things with .jpg compression artifacts.
+Although the image can be in .jpg format, this is discouraged, as the image converter does some unexpected things with .jpg compression artifacts. Images work best at 640x384, but large images will be resized, and small images will be pasted onto a border. 640x384 images are therefore recommended, but any size image should work.
 
 Supplying the argument `--image clear` will cause the display to clear to white.
 

@@ -35,6 +35,7 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
         # Go through the original image pixel by pixel and separate out red and an average of blue/green channels
         
         # Create a color and black bitmap if the screencolor is not grayscale
+        print("Begin processing image per-pixel")
         for y in range(imgheight):
             for x in range(imgwidth):
                 if mode == "RGB":
@@ -74,6 +75,7 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
         # If the date location is "detect", we still need to parse each pixel to find the secret pixel.
         # I realize this is repeating an awful lot of code up above. This should be refacroted later.
         if date_location == "detect":
+            print("Looking for the secret pixel")
             for y in range(imgheight):
                 for x in range(imgwidth):
                     if mode == "RGB":
@@ -179,3 +181,25 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
         black_bitmap.paste(black_date, secret_pixel)
         color_bitmap = None
     return black_bitmap, color_bitmap
+
+def fix_size(image, max_size):
+    max_width = max_size[0]
+    max_height = max_size[1]
+    # First, check to see if width or height are too large
+    if image.width > max_width or image.height > max_height:
+        print("Image too large: shrinking down")
+        image.thumbnail((max_width, max_height), Image.ANTIALIAS)
+
+    # The image should not be too large now, but still may not fill the whole screen
+    if image.width != max_width or image.height != max_height:
+        print("Image not correct aspect ratio. Adding border")
+        # Create a blank canvas to paste the new image onto.
+        black = ImageColor.getcolor("black", image.mode)
+        canvas = Image.new(image.mode, (max_width, max_height), black )
+        # Figure out where to paste the image by finding the remaining space and dividing by 2
+        x = max(0, int((max_width - image.width) / 2) )
+        y = max(0, int((max_height - image.height) / 2) )
+        canvas.paste(image, (x, y))
+        image = canvas
+
+    return image

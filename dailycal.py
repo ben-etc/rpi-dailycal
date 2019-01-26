@@ -20,13 +20,13 @@ parser.add_argument("--margin",
                     help="Sets the margin on the text in the datebox.")
 parser.add_argument("--date-location", 
                     help="topleft | topright | bottomleft | bottomright | manual | detect")
-parser.add_argument("--date-coords",
+parser.add_argument("--date-coords", nargs="+", type=int,
                     help="Manually sets the location of the date box.")
 parser.add_argument("--font", help="Select a specific font.")
 
 args = parser.parse_args()
 
-# Validate the argument selection. Certain options are mutally exclusive.
+# Validate the argument selection.
 
 # Validate color selection
 if args.red == True and args.yellow == True:
@@ -43,8 +43,13 @@ if args.input != "clear":
         input_image = args.input
     try:
         img = Image.open("images/{0}".format(input_image))
+        epaper_width = epd7in5.EPD_WIDTH
+        epaper_height = epd7in5.EPD_HEIGHT
+        img = cb.fix_size(img, (epaper_width, epaper_height))
     except:
         print("Unable to open {0}".format(input_image))
+
+# Check to make sure the image is the right size. If not, resize it.
 
 
 if args.red == True:
@@ -60,6 +65,7 @@ datebox_kwargs = {}
 if args.date_location is not None:
     convert_kwargs.update({"date_location":args.date_location})
 if args.date_coords is not None:
+    coords = tuple(args.date_coords)
     convert_kwargs.update({"date_coords":args.date_coords})
 if args.no_border == True:
     datebox_kwargs.update({"border":False})
@@ -81,7 +87,11 @@ if screencolor == "grayscale":
         epd.init()
         epd.Clear(0xFF)
     else:
-        blackbuffer = epd.getbuffer(blackbit)
+        blackbit.save("buffer.bmp")
+        # Saving the black bitmap and reloading it fixes a blank date box bug
+        # I don't know what causes it, but this fixes it.
+        new_blackbit = Image.open("buffer.bmp")
+        blackbuffer = epd.getbuffer(new_blackbit)
         epd.init()
         epd.display(blackbuffer)
     epd.sleep()
