@@ -48,16 +48,16 @@ python3 dailycal.py --image example.png --red
 There are a number of optional arguments that control the location of the date box, fonts, etc. All the following examples are valid:
 
 ```bash
-python3 dailycal --image example.png --red --date_location topright --no-border
-python3 dailycal --image example.png --yellow --date_location manual --date_coords (45, 20)
+python3 dailycal --image example.png --red --date-location topright --no-border
+python3 dailycal --image example.png --yellow --date-location manual --date-coords 45 20
 python3 dailycal --image example.png --red --margin 10 --font arial.ttf
 ```
 
 ## About --date_location and "the secret pixel"
 
-By default, the script looks for a "secret pixel", which is the _first_ instance of a totally blue pixel (0, 0, 255) in the image. This allows a user preparing images to simply place one blue pixel to represent the upper left bound of the date box. If it does not find such a pixel, it defaults to the upper left of the image.
+By default, the date is placed in the bottom right. However, using the `--date-location detect`argument, the script looks for a "secret pixel", which is the _first_ instance of a totally blue pixel (0, 0, 255) in the image. This allows a user preparing images to simply place one blue pixel to represent the upper left bound of the date box. If it does not find such a pixel, it defaults to the upper left of the image.
 
-If this behavior is not desired, either because you are using an image with solid blue pixels or simply to avoid having to manually place this pixel on your image, the date box can be placed with any of the following `--date_location` arguments:
+If this behavior is not desired, either because you are using an image with solid blue pixels or simply to avoid having to manually place this pixel on your image, the date box can be placed with any of the following `--date-location` arguments:
 
 `topleft` place the date box in the upper left corner
 
@@ -66,6 +66,8 @@ If this behavior is not desired, either because you are using an image with soli
 `bottomleft` place the date box in the lower left corner
 
 `bottomright` place the date box in the lower right corner
+
+`detect` place the date box at the secret pixel, as described above.
 
 `manual` uses the (x, y) coordinates provided by the `--date_coords` argument. Note that (0, 0) is the upper left of the image; increasing values for x move to the right, and increasing values for y move down.
 
@@ -79,7 +81,7 @@ Although the image can be in .jpg format, this is discouraged, as the image conv
 
 Supplying the argument `--image clear` will cause the display to clear to white.
 
-Supplying the argument `--image shuffle` will pick the next image in the pre-shuffled list, or generate a new shuffled list if the list is empty.
+Supplying the argument `--image shuffle` will pick the next image in the pre-shuffled list, or generate a new shuffled list if the list is empty. Every .jpg and .png file in the __images/__ directory will be shuffled together into a list.
 
 ## About --font
 

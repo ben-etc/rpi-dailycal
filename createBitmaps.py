@@ -3,7 +3,7 @@
 from PIL import Image, ImageFont, ImageColor, ImageDraw
 import datetime
 
-def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(0,0)):
+def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coords=(0,0)):
     imgwidth = rgb_image.width
     imgheight = rgb_image.height
     if screencolor != "grayscale":
@@ -25,8 +25,8 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
     elif date_location == "manual":
         secret_pixel = date_coords
     else:
-        print("Date location {0} is not a valid choice. Defaulting to topleft".format(date_location))
-        secret_pixel = (0,0)
+        print("Date location {0} is not a valid choice. Defaulting to bottomright".format(date_location))
+        secret_pixel = (imgwidth, imgheight)
     
     
     mode = rgb_image.mode
@@ -93,7 +93,7 @@ def convert_bitmap(rgb_image, screencolor, date_location="detect", date_coords=(
         black_bitmap = None
         color_bitmap = None
     if secret_pixel == (-1, -1):
-        secret_pixel = (0, 0) # Default the calendar to 0,0 if it hasn't been detected.
+        secret_pixel = (imgwidth, imgheight) # Default the calendar to the bottom right if it hasn't been detected.
     print("Secret pixel: {0}".format(secret_pixel))
     return black_bitmap, color_bitmap, secret_pixel
 
@@ -182,7 +182,7 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
         color_bitmap = None
     return black_bitmap, color_bitmap
 
-def fix_size(image, max_size):
+def fix_size(image, max_size, letterbox_color = "black"):
     max_width = max_size[0]
     max_height = max_size[1]
     # First, check to see if width or height are too large
@@ -194,8 +194,8 @@ def fix_size(image, max_size):
     if image.width != max_width or image.height != max_height:
         print("Image not correct aspect ratio. Adding border")
         # Create a blank canvas to paste the new image onto.
-        black = ImageColor.getcolor("black", image.mode)
-        canvas = Image.new(image.mode, (max_width, max_height), black )
+        color = ImageColor.getcolor(letterbox_color, image.mode)
+        canvas = Image.new(image.mode, (max_width, max_height), letterbox_color )
         # Figure out where to paste the image by finding the remaining space and dividing by 2
         x = max(0, int((max_width - image.width) / 2) )
         y = max(0, int((max_height - image.height) / 2) )

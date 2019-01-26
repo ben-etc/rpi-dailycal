@@ -1,5 +1,4 @@
 import argparse
-import os
 from PIL import Image
 import createBitmaps as cb
 import epd7in5
@@ -23,6 +22,8 @@ parser.add_argument("--date-location",
 parser.add_argument("--date-coords", nargs="+", type=int,
                     help="Manually sets the location of the date box.")
 parser.add_argument("--font", help="Select a specific font.")
+parser.add_argument("--letterbox-color",
+                   help="Sets the color of letterbox if the image is too small")
 
 args = parser.parse_args()
 
@@ -43,14 +44,16 @@ if args.input != "clear":
         input_image = args.input
     try:
         img = Image.open("images/{0}".format(input_image))
-        epaper_width = epd7in5.EPD_WIDTH
-        epaper_height = epd7in5.EPD_HEIGHT
-        img = cb.fix_size(img, (epaper_width, epaper_height))
     except:
         print("Unable to open {0}".format(input_image))
-
-# Check to make sure the image is the right size. If not, resize it.
-
+    # Check to make sure the image is the right size, otherwise resize it.
+    epaper_width = epd7in5.EPD_WIDTH
+    epaper_height = epd7in5.EPD_HEIGHT
+    if args.letterbox_color is None:
+        letterbox = "black"
+    else:
+        letterbox = args.letterbox_color
+    img = cb.fix_size(img, (epaper_width, epaper_height), letterbox)
 
 if args.red == True:
     screencolor = "red"
