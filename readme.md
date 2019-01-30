@@ -1,5 +1,7 @@
 # Raspberry Pi Daily Calendar
 
+![Header Image](https://raw.githubusercontent.com/wiki/ben-etc/rpi-dailycal/images/dailycal.jpg)
+
 When I was growing up, my dad always got a daily _Far Side_ desk calendar, which showed the date and a  comic. While such analog calendars are still available, I've decided to replicate the idea with my own images on a Raspberry Pi connected to a 7.5 inch Waveshare e-ink display. This will work on any Raspberry Pi that can connect to the e-paper display, and will work with any 7.5 inch Waveshare e-ink display (black and white, 3 colors with red, or 3 colors with yellow).
 
 ## What this _is_
