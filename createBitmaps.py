@@ -131,7 +131,10 @@ def merge_bitmaps(black_bitmap, color_bitmap, screencolor="red"):
     return outputImage
 
 
-def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=True, margin=5, fontname="LeagueSpartan-Bold.otf"):
+def add_dateboxes(screencolor, black_bitmap, color_bitmap,
+                  secret_pixel, border=True, margin=5,
+                  fontname="LeagueSpartan-Bold.otf",
+                  holiday_file=None):
     today = datetime.datetime.now()
     weekdays = {
         0: "Monday",
@@ -157,15 +160,37 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
         11: "November",
         12: "December"
     }
+    if holiday_file is not None:
+        with open(holiday_file, "r") as holiday_list:
+            holidays = holiday_list.read().splitlines(True)
+            for date in holidays:
+                day = date.split(":")[0]
+                holiday = date.split(":")[1].rstrip()
+                day = day.split("-")
+                if today.month == int(day[0]) and today.day == int(day[1]):
+                    holiday_text = holiday
+                    holiday_font = ImageFont.truetype("./fonts/OFLGoudyStM.otf",
+                                                      16)
+                    holiday_width = holiday_font.getsize(
+                        holiday_text)[0] + (margin * 2)
+                    holiday_height = holiday_font.getsize(holiday_text)[
+                        1] + margin
+                else:
+                    holiday_text = None
+                    holiday_width = 0
+                    holiday_height = 0
 
     indent = margin + 20
     font = ImageFont.truetype("./fonts/{0}".format(fontname), 32)
     day_of_week = weekdays[today.weekday()]
     formatted_date = "{0} {1}".format(months[today.month], today.day)
-    width = max((margin * 2 + font.getsize(day_of_week)
-                 [0]), (margin + indent + font.getsize(formatted_date)[0]))
+    width = max((margin * 2 + font.getsize(day_of_week)[0]),
+                (margin + indent + font.getsize(formatted_date)[0]),
+                holiday_width)
     newline = margin + font.getsize(day_of_week)[1]
-    height = newline + margin + font.getsize(formatted_date)[1]
+    holiday_line = margin + font.getsize(formatted_date)[1] + newline
+    height = newline + margin + \
+        font.getsize(formatted_date)[1] + holiday_height
     black_date = Image.new("1", (width, height), 1)
     black_draw = ImageDraw.Draw(black_date)
     # Recalculate the secret_pixel to avoid going out of bounds
@@ -186,6 +211,9 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
                         fill=0, font=font)  # Shadow
         black_draw.text((margin, margin), day_of_week, fill=1, font=font)
         black_draw.text((indent, newline), formatted_date, fill=0, font=font)
+        if holiday_text is not None:
+            black_draw.text((margin, holiday_line), holiday_text, fill=0,
+                            font=holiday_font)
         color_bitmap.paste(color_date, secret_pixel)
         black_bitmap.paste(black_date, secret_pixel)
 
@@ -195,6 +223,9 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap, secret_pixel, border=
                 (0, 0, black_date.width, black_date.height), fill=1, outline=0, width=2)
         black_draw.text((margin, margin), day_of_week, fill=0, font=font)
         black_draw.text((indent, newline), formatted_date, fill=0, font=font)
+        if holiday_text is not None:
+            black_draw.text((margin, holiday_line), holiday_text, fill=0,
+                            font=holiday_font)
         black_bitmap.paste(black_date, secret_pixel)
         color_bitmap = None
     return black_bitmap, color_bitmap
@@ -212,7 +243,6 @@ def fix_size(image, max_size, letterbox_color="black"):
     if image.width != max_width or image.height != max_height:
         print("Image not correct aspect ratio. Adding border")
         # Create a blank canvas to paste the new image onto.
-        color = ImageColor.getcolor(letterbox_color, image.mode)
         canvas = Image.new(
             image.mode, (max_width, max_height), letterbox_color)
         # Figure out where to paste the image by finding the remaining space and dividing by 2
