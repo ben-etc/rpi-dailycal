@@ -15,15 +15,15 @@ parser.add_argument("-y", "--yellow", action="store_true",
                     help="Enables yellow color mode for yellow screens.")
 parser.add_argument("--no-border", action="store_true",
                     help="Disables the border on the date box.")
-parser.add_argument("--margin", 
+parser.add_argument("--margin",
                     help="Sets the margin on the text in the datebox.")
-parser.add_argument("--date-location", 
+parser.add_argument("--date-location",
                     help="topleft | topright | bottomleft | bottomright | manual | detect")
 parser.add_argument("--date-coords", nargs="+", type=int,
                     help="Manually sets the location of the date box.")
 parser.add_argument("--font", help="Select a specific font.")
 parser.add_argument("--letterbox-color",
-                   help="Sets the color of letterbox if the image is too small")
+                    help="Sets the color of letterbox if the image is too small")
 
 args = parser.parse_args()
 
@@ -66,21 +66,23 @@ else:
 convert_kwargs = {}
 datebox_kwargs = {}
 if args.date_location is not None:
-    convert_kwargs.update({"date_location":args.date_location})
+    convert_kwargs.update({"date_location": args.date_location})
 if args.date_coords is not None:
     coords = tuple(args.date_coords)
-    convert_kwargs.update({"date_coords":args.date_coords})
+    convert_kwargs.update({"date_coords": args.date_coords})
 if args.no_border == True:
-    datebox_kwargs.update({"border":False})
+    datebox_kwargs.update({"border": False})
 if args.margin is not None:
-    datebox_kwargs.update({"margin":args.margin})
+    datebox_kwargs.update({"margin": args.margin})
 if args.font is not None:
-    datebox_kwargs.update({"fontname":args.font})
+    datebox_kwargs.update({"fontname": args.font})
 
 # Generate bitmaps. The colorbit variable is generated even for grayscale, but it is dummy data
 if args.input != "clear":
-    blackbit, colorbit, secret_pixel = cb.convert_bitmap(img, screencolor, **convert_kwargs)
-    blackbit, colorbit = cb.add_dateboxes(screencolor, blackbit, colorbit, secret_pixel, **datebox_kwargs)
+    blackbit, colorbit, secret_pixel = cb.convert_bitmap(
+        img, screencolor, **convert_kwargs)
+    blackbit, colorbit = cb.add_dateboxes(
+        screencolor, blackbit, colorbit, secret_pixel, **datebox_kwargs)
 
 # Grayscale and red / yellow have different routines.
 

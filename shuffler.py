@@ -1,6 +1,7 @@
 import os
 import random
 
+
 def shuffle_images():
     filename = "shuffle.txt"
     print("Grabbing the next image from {0}".format(filename))
@@ -26,14 +27,15 @@ def shuffle_images():
 
     # Now that we're sure the file exists, return the first line from the file
     # Then dump the rest of the lines back into the file.
-    
+
     with open(filename, "r") as file_in:
         working_list = file_in.read().splitlines(True)
     read_image = working_list[0].rstrip()
     with open(filename, "w") as file_out:
         file_out.writelines(working_list[1:])
-    
+
     return read_image
+
 
 if __name__ == "__main__":
     shuffle_images()
