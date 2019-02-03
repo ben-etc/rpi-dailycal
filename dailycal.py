@@ -24,6 +24,8 @@ parser.add_argument("--date-coords", nargs="+", type=int,
 parser.add_argument("--font", help="Select a specific font.")
 parser.add_argument("--letterbox-color",
                     help="Sets the color of letterbox if the image is too small")
+parser.add_argument("--holiday-file",
+                    help="Location of txt file containing holidays.")
 
 args = parser.parse_args()
 
@@ -76,6 +78,8 @@ if args.margin is not None:
     datebox_kwargs.update({"margin": args.margin})
 if args.font is not None:
     datebox_kwargs.update({"fontname": args.font})
+if args.holiday_file is not None:
+    datebox_kwargs.update({"holiday_file": args.holiday_file})
 
 # Generate bitmaps. The colorbit variable is generated even for grayscale, but it is dummy data
 if args.input != "clear":
@@ -86,6 +90,7 @@ if args.input != "clear":
 
 # Grayscale and red / yellow have different routines.
 
+# Send screen commands for graysale
 if screencolor == "grayscale":
     epd = epd7in5.EPD()
     if args.input == "clear":
@@ -109,7 +114,7 @@ if screencolor == "grayscale":
     epd.sleep()
 
 else:
-    # Do the things for red / yellow. They follow the same process.
+    # Send screen commands for color screens. Both red and yellow have the same routine.
     epd = epd7in5b.EPD()
     if args.input == "clear":
         try:

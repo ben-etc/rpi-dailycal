@@ -160,26 +160,35 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
         11: "November",
         12: "December"
     }
-    if holiday_file is not None:
-        with open(holiday_file, "r") as holiday_list:
-            holidays = holiday_list.read().splitlines(True)
-            for date in holidays:
-                day = date.split(":")[0]
-                holiday = date.split(":")[1].rstrip()
-                day = day.split("-")
-                if today.month == int(day[0]) and today.day == int(day[1]):
-                    holiday_text = holiday
-                    holiday_font = ImageFont.truetype("./fonts/OFLGoudyStM.otf",
-                                                      16)
-                    holiday_width = holiday_font.getsize(
-                        holiday_text)[0] + (margin * 2)
-                    holiday_height = holiday_font.getsize(holiday_text)[
-                        1] + margin
-                else:
-                    holiday_text = None
-                    holiday_width = 0
-                    holiday_height = 0
 
+    # This block will add an extra line with a holiday loaded from a txt file
+    # This block will not run if no txt file was supplied.
+    if holiday_file is not None:
+        holiday_font = ImageFont.truetype("./fonts/OFLGoudyStM.otf", 16)
+        try:
+            with open(holiday_file, "r") as holiday_list:
+                holidays = holiday_list.read().splitlines(True)
+                for date in holidays:
+                    day = date.split(":")[0]
+                    holiday = date.split(":")[1].rstrip()
+                    day = day.split("-")
+                    if today.month == int(day[0]) and today.day == int(day[1]):
+                        holiday_text = holiday
+                        holiday_width = holiday_font.getsize(
+                            holiday_text)[0] + (margin * 2)
+                        holiday_height = holiday_font.getsize(holiday_text)[
+                            1] + margin
+                    else:
+                        holiday_text = None
+                        holiday_width = 0
+                        holiday_height = 0
+        except:
+            print("Unable to load holiday file {0}".format(holiday_file))
+            holiday_text = "Unable to load holiday file {0}".format(
+                holiday_file)
+            holiday_width = holiday_font.getsize(
+                holiday_text)[0] + (margin * 2)
+            holiday_height = holiday_font.getsize(holiday_text)[1] + margin
     indent = margin + 20
     font = ImageFont.truetype("./fonts/{0}".format(fontname), 32)
     day_of_week = weekdays[today.weekday()]
