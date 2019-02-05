@@ -164,14 +164,18 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
     # This block will add an extra line with a holiday loaded from a txt file
     # This block will not run if no txt file was supplied.
     if holiday_file is not None:
-        holiday_font = ImageFont.truetype("./fonts/OFLGoudyStM.otf", 16)
+        holiday_font = ImageFont.truetype("./fonts/Linden Hill.otf", 18)
         try:
             with open(holiday_file, "r") as holiday_list:
                 holidays = holiday_list.read().splitlines(True)
                 for date in holidays:
-                    day = date.split(":")[0]
-                    holiday = date.split(":")[1].rstrip()
-                    day = day.split("-")
+                    # Don't parse commented or lines without ":"
+                    if date[0] == "#" or ":" not in date:
+                        day = [0, 0]  # This is sort of an ugly hack
+                    else:
+                        day = date.split(":")[0]
+                        holiday = date.split(":")[1].rstrip()
+                        day = day.split("-")
                     if today.month == int(day[0]) and today.day == int(day[1]):
                         holiday_text = holiday
                         holiday_width = holiday_font.getsize(

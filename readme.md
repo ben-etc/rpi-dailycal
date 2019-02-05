@@ -99,4 +99,4 @@ This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) fi
 
 The e-paper libraries included with this software are copyright Waveshare and distributed with permission as indicated in the associate files.
 
-The font League Spartan is from the [League of Movable Type](https://www.theleagueofmoveabletype.com) and can be found on GitHub at [https://github.com/theleagueof/league-spartan](github.com/theleagueof/league-spartan). It is distributed under the OFL license included in the fonts/ directory.
+The fonts League Spartan and Linden Hill are from the [League of Movable Type](https://www.theleagueofmoveabletype.com) and can be found on GitHub at [https://github.com/theleagueof/league-spartan](github.com/theleagueof/league-spartan) and [https://github.com/theleagueof/linden-hill](https://github.com/theleagueof/linden-hill) respectively. Both fonts are distributed under the OFL license included in the fonts/ directory.
