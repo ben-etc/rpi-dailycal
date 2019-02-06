@@ -161,6 +161,10 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
         12: "December"
     }
 
+    # Set up the holiday_text, holiday_width, and holiday_height variables ahead of time.
+    holiday_text = None
+    holiday_width = 0
+    holiday_height = 0
     # This block will add an extra line with a holiday loaded from a txt file
     # This block will not run if no txt file was supplied.
     if holiday_file is not None:
@@ -182,10 +186,6 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
                             holiday_text)[0] + (margin * 2)
                         holiday_height = holiday_font.getsize(holiday_text)[
                             1] + margin
-                    else:
-                        holiday_text = None
-                        holiday_width = 0
-                        holiday_height = 0
         except:
             print("Unable to load holiday file {0}".format(holiday_file))
             holiday_text = "Unable to load holiday file {0}".format(
