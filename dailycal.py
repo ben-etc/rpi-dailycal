@@ -1,4 +1,7 @@
+__version__ = "1.1"
+
 import argparse
+import sys
 from PIL import Image
 import createBitmaps as cb
 import epd7in5
@@ -7,8 +10,10 @@ import shuffler
 
 # Begin parsing arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", required=True,
+parser.add_argument("-i", "--image",
                     help="The image to be converted. PNG file preferred")
+parser.add_argument("-v", "--version", action="store_true",
+                    help="Print version, then exit.")
 parser.add_argument("-r", "--red", action="store_true",
                     help="Enables red color mode for red screens.")
 parser.add_argument("-y", "--yellow", action="store_true",
@@ -29,21 +34,29 @@ parser.add_argument("--holiday-file",
 
 args = parser.parse_args()
 
+# If --version is supplied, print __version__ and exit
+if args.version == True:
+    print("Raspberry Pi Daily Calendar version {0}".format(__version__))
+    sys.exit(0)
 # Validate the argument selection.
 
+#Check to see if an --image argument was supplied. If not, exit
+if args.image is None:
+    print("No image name was supplied. Program will now exit.")
+    sys.exit(1)
 # Validate color selection
 if args.red == True and args.yellow == True:
     print("Both red and yellow screencolor arguments were selected!")
     print("Please select only --red or --yellow.")
     print("Script will now exit.")
-    exit()
+    sys.exit(2)
 
-if args.input != "clear":
-    if args.input == "shuffle":
+if args.image != "clear":
+    if args.image == "shuffle":
         input_image = shuffler.shuffle_images()
         print("Input image detected as {0}".format(input_image))
     else:
-        input_image = args.input
+        input_image = args.image
     try:
         img = Image.open("images/{0}".format(input_image))
     except:
@@ -82,7 +95,7 @@ if args.holiday_file is not None:
     datebox_kwargs.update({"holiday_file": args.holiday_file})
 
 # Generate bitmaps. The colorbit variable is generated even for grayscale, but it is dummy data
-if args.input != "clear":
+if args.image != "clear":
     blackbit, colorbit, secret_pixel = cb.convert_bitmap(
         img, screencolor, **convert_kwargs)
     blackbit, colorbit = cb.add_dateboxes(
@@ -93,7 +106,7 @@ if args.input != "clear":
 # Send screen commands for graysale
 if screencolor == "grayscale":
     epd = epd7in5.EPD()
-    if args.input == "clear":
+    if args.image == "clear":
         try:
             epd.init()
             epd.Clear(0xFF)
@@ -116,7 +129,7 @@ if screencolor == "grayscale":
 else:
     # Send screen commands for color screens. Both red and yellow have the same routine.
     epd = epd7in5b.EPD()
-    if args.input == "clear":
+    if args.image == "clear":
         try:
             epd.init()
             epd.Clear(0xFF)
