@@ -4,8 +4,6 @@ import argparse
 import sys
 from PIL import Image
 import createBitmaps as cb
-import epd7in5
-import epd7in5b
 import shuffler
 
 # Begin parsing arguments
@@ -38,9 +36,14 @@ args = parser.parse_args()
 if args.version == True:
     print("Raspberry Pi Daily Calendar version {0}".format(__version__))
     sys.exit(0)
+# If --version is not supplied, load the drivers.
+# This way, the SPIDEV module does not need to be loaded on test systems
+else:
+    import epd7in5
+    import epd7in5b
 # Validate the argument selection.
 
-#Check to see if an --image argument was supplied. If not, exit
+# Check to see if an --image argument was supplied. If not, exit
 if args.image is None:
     print("No image name was supplied. Program will now exit.")
     sys.exit(1)
