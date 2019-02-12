@@ -1,4 +1,4 @@
-__version__ = "1.1"
+__version__ = "1.2"
 
 import argparse
 import sys
@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 # If --version is supplied, print __version__ and exit
 if args.version == True:
-    print("Raspberry Pi Daily Calendar version {0}".format(__version__))
+    print("Daily Pi Calendar version {0}".format(__version__))
     sys.exit(0)
 # If --version is not supplied, load the drivers.
 # This way, the SPIDEV module does not need to be loaded on test systems

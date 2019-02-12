@@ -1,4 +1,4 @@
-# Raspberry Pi Daily Calendar
+# Daily Pi Calendar
 
 ![Header Image](https://raw.githubusercontent.com/wiki/ben-etc/rpi-dailycal/images/dailycal.jpg)
 
