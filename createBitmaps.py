@@ -1,5 +1,6 @@
 # These functions modify an RGB image into the bitmaps used by the e-paper screen
 
+from importlib import import_module
 from PIL import Image, ImageFont, ImageColor, ImageDraw
 import datetime
 
@@ -130,12 +131,11 @@ def merge_bitmaps(black_bitmap, color_bitmap, screencolor="red"):
 
     return outputImage
 
+# The following is en.py hard coded into the program as a failsafe
 
-def add_dateboxes(screencolor, black_bitmap, color_bitmap,
-                  secret_pixel, border=True, margin=5,
-                  fontname="LeagueSpartan-Bold.otf",
-                  holiday_file=None):
-    today = datetime.datetime.now()
+
+def localize_failsafe(today_weekday, today_day, today_month):
+    # Set up dictionaries for month and weekdays
     weekdays = {
         0: "Monday",
         1: "Tuesday",
@@ -160,6 +160,18 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
         11: "November",
         12: "December"
     }
+
+    weekday = weekdays[today_weekday]
+    formatted_date = "{0} {1}".format(months[today_month], str(today_day))
+
+    return weekday, formatted_date
+
+
+def add_dateboxes(screencolor, black_bitmap, color_bitmap,
+                  secret_pixel, border=True, margin=5,
+                  fontname="LeagueSpartan-Bold.otf",
+                  holiday_file=None, language="en"):
+    today = datetime.datetime.now()
 
     # Set up the holiday_text, holiday_width, and holiday_height variables ahead of time.
     holiday_text = None
@@ -195,8 +207,16 @@ def add_dateboxes(screencolor, black_bitmap, color_bitmap,
             holiday_height = holiday_font.getsize(holiday_text)[1] + margin
     indent = margin + 20
     font = ImageFont.truetype("./fonts/{0}".format(fontname), 32)
-    day_of_week = weekdays[today.weekday()]
-    formatted_date = "{0} {1}".format(months[today.month], today.day)
+    print("Importing language {0}".format(language))
+    try:
+        lang = import_module("localization.{0}".format(language))
+        day_of_week, formatted_date = lang.localize(
+            today.weekday(), today.day, today.month)
+    except:
+        print(
+            "Error importing language {0}. Using Built-in English as fallback".format(language))
+        day_of_week, formatted_date = localize_failsafe(
+            today.weekday(), today.day, today.month)
     width = max((margin * 2 + font.getsize(day_of_week)[0]),
                 (margin + indent + font.getsize(formatted_date)[0]),
                 holiday_width)

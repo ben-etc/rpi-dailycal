@@ -29,6 +29,8 @@ parser.add_argument("--letterbox-color",
                     help="Sets the color of letterbox if the image is too small")
 parser.add_argument("--holiday-file",
                     help="Location of txt file containing holidays.")
+parser.add_argument("--language",
+                    help="Two letter language code for localization, e.g. 'en'")
 
 args = parser.parse_args()
 
@@ -96,6 +98,8 @@ if args.font is not None:
     datebox_kwargs.update({"fontname": args.font})
 if args.holiday_file is not None:
     datebox_kwargs.update({"holiday_file": args.holiday_file})
+if args.language is not None:
+    datebox_kwargs.update({"language": args.language})
 
 # Generate bitmaps. The colorbit variable is generated even for grayscale, but it is dummy data
 if args.image != "clear":
