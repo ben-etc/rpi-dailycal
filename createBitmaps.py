@@ -11,8 +11,10 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
     if screencolor != "grayscale":
         # Create an empty grayscale image for the color channel
         colorscale = Image.new("L", (imgwidth, imgheight), 255)
+        colorscale_access = colorscale.load()
     # Create an empty grayscale image that will be the black channel
     grayscale = Image.new("L", (imgwidth, imgheight), 255)
+    grayscale_access = grayscale.load()
     secret = (0, 0, 255, 255)
 
     # The logic for everything but topright will put the box out of bounds, but this is corrected in addDateboxes once the box is dynamically generated.
@@ -35,6 +37,7 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
         secret_pixel = (imgwidth, imgheight)
 
     mode = rgb_image.mode
+    pixelaccess = rgb_image.load()
 
     if screencolor == "red" or screencolor == "yellow":
         # Go through the original image pixel by pixel and separate out red and an average of blue/green channels
@@ -44,10 +47,10 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
         for y in range(imgheight):
             for x in range(imgwidth):
                 if mode == "RGB":
-                    r, g, b = rgb_image.getpixel((x, y))
+                    r, g, b = pixelaccess[x,y]
                     a = 255  # Alpha is always totally opaque on an RGB image
                 elif mode == "RGBA":
-                    r, g, b, a = rgb_image.getpixel((x, y))
+                    r, g, b, a = pixelaccess[x,y]
                     # The next two lines fade out images approximating alpha transparency
                     inverse_alpha = 255 - a
                     r, g, b = (r + inverse_alpha), (g +
@@ -61,8 +64,8 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
                     # Average the blue and green channels to output it to the black channel
                     avg = int((g + b) / 2)
                     color_value = r - max(g, b)
-                    colorscale.putpixel((x, y), (255 - color_value))
-                    grayscale.putpixel((x, y), avg)
+                    colorscale_access[x,y] = 255 - color_value
+                    grayscale_access[x,y] = avg
 
                 # Math for yellow screens
                 elif screencolor == "yellow":
@@ -70,8 +73,8 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
                     yellow_avg = int(((r-b) + (g-b)) / 2)
                     yellow_avg = yellow_avg - max(r - g, g - r)
                     gray_avg = int((r + g + b) / 3)
-                    colorscale.putpixel((x, y), 255 - yellow_avg)
-                    grayscale.putpixel((x, y), gray_avg)
+                    colorscale_access[x, y] = 255 - yellow_avg
+                    grayscale_access[x, y] = gray_avg
 
         # Convert the two grayscale images to single color bitmaps
         color_bitmap = colorscale.convert("1")
@@ -87,10 +90,10 @@ def convert_bitmap(rgb_image, screencolor, date_location="bottomright", date_coo
             for y in range(imgheight):
                 for x in range(imgwidth):
                     if mode == "RGB":
-                        r, g, b = rgb_image.getpixel((x, y))
+                        r, g, b = pixelaccess[x,y]
                         a = 255
                     elif mode == "RGBA":
-                        r, g, b, a = rgb_image.getpixel((x, y))
+                        r, g, b, a = pixelaccess[x,y]
 
                     if (r, g, b, a) == secret and secret_pixel == (-1, -1):
                         secret_pixel = (x, y)
@@ -117,17 +120,19 @@ def merge_bitmaps(black_bitmap, color_bitmap, screencolor="red"):
 
     outputImage = Image.new(
         "RGB", (color_bitmap.width, color_bitmap.height), white)
-
+    blackaccess = black_bitmap.load()
+    coloraccess = color_bitmap.load()
+    outputaccess = outputImage.load()
     # Map each pixel to color or black
     for y in range(color_bitmap.height):
         for x in range(color_bitmap.width):
-            colorcheck = color_bitmap.getpixel((x, y))
-            blackcheck = black_bitmap.getpixel((x, y))
+            colorcheck = coloraccess[x,y]
+            blackcheck = blackaccess[x,y]
 
             if colorcheck == 0:
-                outputImage.putpixel((x, y), color)
+                outputaccess[x,y] = color
             elif blackcheck == 0:
-                outputImage.putpixel((x, y), black)
+                outputaccess[x,y] = black
 
     return outputImage
 
